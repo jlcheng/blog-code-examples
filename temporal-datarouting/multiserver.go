@@ -22,7 +22,7 @@ type (
 
 	HTTPServer struct {
 		d  *http.Server
-		rs *RoutingService
+		rs *TransmitService
 	}
 
 	TemporalWorker struct {
@@ -33,7 +33,7 @@ type (
 
 var _ Server = (*HTTPServer)(nil)
 
-func NewHTTPServer(d *http.Server, rs *RoutingService) *HTTPServer {
+func NewHTTPServer(d *http.Server, rs *TransmitService) *HTTPServer {
 	return &HTTPServer{d, rs}
 }
 
@@ -75,7 +75,7 @@ func (s *TemporalWorker) Stop() {
 	close(s.ch)
 }
 
-func (r *RoutingService) Start() {
+func (r *TransmitService) Start() {
 	ticker := time.NewTicker(time.Second)
 LOOP:
 	for {
@@ -89,7 +89,7 @@ LOOP:
 	}
 }
 
-func (r *RoutingService) Stop() {
+func (r *TransmitService) Stop() {
 	close(r.done)
 }
 

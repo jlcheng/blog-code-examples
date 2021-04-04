@@ -11,15 +11,16 @@ import (
 
 var (
 	// Start a HTTP server to handle "deliver this packet" requests. The server lisens on port 9091, but can be configured by
-	// the environment variable "demo_port"
-	PortRoutingService = getServerPort(9091, "demo_port")
+	// the environment variable "demo_port". The server will receive a "deliver packet from activity X" request and make a
+	// callback to activity X on success.
+	PortTransmitService = getServerPort(9091, "demo_port")
 	// The URL of the "deliver this packet" request is /submit.
 	PathRouting = "submit"
 	// The URL parameter which describes the origin of a request. This is the task token used to signal the activity
 	// whether the delivery succeed or failed.
 	ParamTaskToken = "task_token"
 
-	// We try at most three times to look for different route providers.
+	// We try at most four times to transmit the packet using different route providers.
 	TransmitPacketMaxAttempts = 4
 
 	// The remote call to return the next route provider has some chance of failing, configured by the environment variable
@@ -28,18 +29,18 @@ var (
 	// When a service fails, we pretend it failed due to a network error.
 	NetworkError = fmt.Errorf("IO Error: network disconnect")
 	// When Temporal retries a failed GetRouteActivity call, it will retry up to two times for a total of three attempts.
-	GetRouteAttempsCount = 3
+	GetRouteMaxAttempts = 3
 	// The names of the different route providers to choose from.
 	PossibleRouteProviders = []string{"RouteA", "RouteB", "RouteC", "RouteD", "RouteE"}
 
 	// The TransmitActivity will timeout after 10 seconds.
 	TransmitActivityTimeout = 10 * time.Second
 
-	// The RoutingService has a 90% chance of telling us whether it succeeded or failed.
-	RoutingServiceCallbackChance = 90
-	// The RoutingService takes up to 15 seconds to make a callback. Note that it might make the callback well after the
+	// The TransmitService has a 90% chance of telling us whether it succeeded or failed.
+	TransmitServiceCallbackChance = 90
+	// The TransmitService takes up to 15 seconds to make a callback. Note that it might make the callback well after the
 	// TransmitActivityTimeout.
-	RoutingServiceTimeoutSecs = 15
+	TransmitServiceTimeoutSecs = 15
 
 	// When all route providers have been tried, a packet ends up with a status of NO ROUTE
 	StatusNoRoute = "STATUS_NO_ROUTE"

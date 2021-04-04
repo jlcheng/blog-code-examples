@@ -12,34 +12,34 @@ import (
 	"time"
 )
 
-type RoutingService struct {
+type TransmitService struct {
 	c         client.Client
 	done      chan interface{}
 	callbacks map[time.Time]string
 }
 
-var _ Server = (*RoutingService)(nil)
+var _ Server = (*TransmitService)(nil)
 
-func NewRoutingService(c client.Client) *RoutingService {
-	return &RoutingService{
+func NewTransmitService(c client.Client) *TransmitService {
+	return &TransmitService{
 		c:         c,
 		done:      make(chan interface{}),
 		callbacks: make(map[time.Time]string),
 	}
 }
 
-func (r *RoutingService) ServeHTTP(w http.ResponseWriter, request *http.Request) {
+func (r *TransmitService) ServeHTTP(w http.ResponseWriter, request *http.Request) {
 	log.Println("ServeHTTP")
 
 	// Do nothing if we failed the callback roll
-	if rand.Intn(100) >= RoutingServiceCallbackChance {
+	if rand.Intn(100) >= TransmitServiceCallbackChance {
 		log.Println("ServeHTTP: no callback")
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
 	// Roll a random delay
-	delay := time.Now().Add(time.Duration(rand.Intn(RoutingServiceTimeoutSecs)) * time.Second)
+	delay := time.Now().Add(time.Duration(rand.Intn(TransmitServiceTimeoutSecs)) * time.Second)
 	log.Println("ServeHTTP: delay", delay)
 
 	if err := request.ParseForm(); err != nil {
@@ -54,16 +54,15 @@ func (r *RoutingService) ServeHTTP(w http.ResponseWriter, request *http.Request)
 	w.WriteHeader(http.StatusOK)
 }
 
-func (r *RoutingService) String() string {
-	return "RoutingService"
+func (r *TransmitService) String() string {
+	return "TransmitService"
 }
 
-func (r *RoutingService) process() {
+func (r *TransmitService) process() {
 	var toDelete []time.Time
 	for t, token := range r.callbacks {
 		if time.Now().After(t) {
 			tokenBytes, _ := base64.RawURLEncoding.DecodeString(token)
-			log.Printf("completing activity using token: %v\n", token)
 			err := r.c.CompleteActivity(context.Background(), tokenBytes, TransmitOut{Delivered: true}, nil)
 			if err != nil {
 				log.Printf("activity completion error: %v\n", err)
@@ -76,10 +75,10 @@ func (r *RoutingService) process() {
 	}
 }
 
-func SubmitToRoutingService(token string) error {
+func SubmitToTransmitService(token string) error {
 	data := url.Values{}
 	data.Set(ParamTaskToken, token)
-	_, err := http.PostForm(fmt.Sprintf("http://localhost:%d/%s", PortRoutingService, PathRouting), data)
+	_, err := http.PostForm(fmt.Sprintf("http://localhost:%d/%s", PortTransmitService, PathRouting), data)
 	if err != nil {
 		return err
 	}

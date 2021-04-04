@@ -15,7 +15,7 @@ import (
 
 var dataRoutingTaskQueue = "DataRoutingTaskQueue"
 
-var _ http.Handler = (*RoutingService)(nil)
+var _ http.Handler = (*TransmitService)(nil)
 
 func doWorker() {
 	c, err := client.NewClient(client.Options{})
@@ -27,11 +27,11 @@ func doWorker() {
 	w.RegisterActivity(TransmitActivity)
 	w.RegisterWorkflow(DataRoutingWorkflow)
 
-	routingService := NewRoutingService(c)
+	routingService := NewTransmitService(c)
 	mux := http.NewServeMux()
 	mux.Handle("/submit", routingService)
 	httpd := &http.Server{
-		Addr:    fmt.Sprintf(":%d", PortRoutingService),
+		Addr:    fmt.Sprintf(":%d", PortTransmitService),
 		Handler: mux,
 	}
 
@@ -56,7 +56,7 @@ func doSubmit() {
 
 	dataRoutingIn := DataRoutingIn{
 		// Behaviors such as the number of retries can be specified workflow input
-		GetRouteMaxAttempts:       GetRouteAttempsCount,
+		GetRouteMaxAttempts:       GetRouteMaxAttempts,
 		TransmitPacketMaxAttempts: TransmitPacketMaxAttempts,
 
 		Packet: Packet{

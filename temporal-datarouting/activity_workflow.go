@@ -26,27 +26,27 @@ func GetRouteActivity(ctx context.Context, in GetRouteIn) (GetRouteOut, error) {
 	return r, nil
 }
 
-// TransmitActivity transmit a packet to a routing service
+// TransmitActivity transmit a packet via the current routing provider
 func TransmitActivity(ctx context.Context, in TransmitIn) (TransmitOut, error) {
 	logger := activity.GetLogger(ctx)
 	logger.Info("TransmitActivity", zap.String("packet_id", in.Packet.ID))
 	token := base64.RawURLEncoding.EncodeToString(activity.GetInfo(ctx).TaskToken)
-	if err := SubmitToRoutingService(token); err != nil {
+	if err := SubmitToTransmitService(token); err != nil {
 		logger.Error("failed to submit data to routing service", zap.Error(err))
 		return TransmitOut{}, err
 	}
 	return TransmitOut{}, activity.ErrResultPending
 }
 
-// DataRoutingWorkflow delivers a Packet object to its destination. It applies cleansing and enrichment along the way.
+// DataRoutingWorkflow delivers a Packet object to its destination, trying multiple routing providers.
 func DataRoutingWorkflow(ctx workflow.Context, in DataRoutingIn) (DataRoutingOut, error) {
 	logger := workflow.GetLogger(ctx)
 	packet := in.Packet
 
-	// As long as status != Delivered AND we not tried MaxAttempts transmits, we will execute the core of the workflow
+	// As long as status != Delivered AND we have not tried MaxAttempts transmits, we will execute the core of the workflow.
 	for packet.Status != StatusDelivered && len(packet.FailedRouteProviders) < in.TransmitPacketMaxAttempts {
 		// This stanza:
-		//   1. Defines the activity options
+		//   1. Configures how the Activity is to be executed.
 		//   2. Executes the GetRouteActivity, which calls a fragile network service to get the "next route provider to try".
 		//   3. Updates the packet with the "the route provider to try" if previous step succeeds.
 		var getRouteOut GetRouteOut
@@ -64,7 +64,7 @@ func DataRoutingWorkflow(ctx workflow.Context, in DataRoutingIn) (DataRoutingOut
 				MaximumAttempts:    int32(in.GetRouteMaxAttempts),
 			},
 		})
-		// An non-nil err indicates we are at the maximum GetRoute attempts, thus, we return an error message and
+		// An non-nil err indicates we are at the maximum GetRoute attempts. Thus, we return an error message and
 		// terminate the workflow. Not all is lost. It can be manually restarted. :)
 		if err := workflow.ExecuteActivity(ctx, GetRouteActivity, GetRouteIn{Packet: packet}).Get(ctx, &getRouteOut); err != nil {
 			return DataRoutingOut{}, fmt.Errorf("Gave up on GetRouteActivity after %d tries", in.GetRouteMaxAttempts)

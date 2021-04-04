@@ -27,7 +27,7 @@ func (s *UnitTestSuite) AfterTest(string, string) {
 func (s *UnitTestSuite) Test_DataRoutingWorkflow_ok() {
 	in := DataRoutingIn{
 		// Behaviors such as the number of retries can be specified workflow input
-		GetRouteMaxAttempts:       GetRouteAttempsCount,
+		GetRouteMaxAttempts:       GetRouteMaxAttempts,
 		TransmitPacketMaxAttempts: TransmitPacketMaxAttempts,
 
 		Packet: Packet{
@@ -56,8 +56,9 @@ func (s *UnitTestSuite) Test_DataRoutingWorkflow_ok() {
 }
 
 func (s *UnitTestSuite) Test_DataRoutingWorkflow_MultipleTransmit_ok() {
-	// The second call to GetRouteActivity will return a goodRoute
-	getRouteOutSeq := []GetRouteOut {
+	// The first call to GetRouteActivity returns a route that will fail to transmit.
+	// The second call to GetRouteActivity will return a good route.
+	getRouteOutSeq := []GetRouteOut{
 		{false, "badRoute"},
 		{false, "goodRoute"},
 	}
@@ -68,7 +69,7 @@ func (s *UnitTestSuite) Test_DataRoutingWorkflow_MultipleTransmit_ok() {
 	}
 	transmitActivityMock := func(_ context.Context, in TransmitIn) (TransmitOut, error) {
 		if in.Packet.CurrentRouteProvider == "goodRoute" {
-			return TransmitOut{	Delivered: true	}, nil
+			return TransmitOut{Delivered: true}, nil
 		}
 		return TransmitOut{Delivered: false}, fmt.Errorf("activity timed out")
 	}
@@ -93,8 +94,8 @@ func (s *UnitTestSuite) Test_DataRoutingWorkflow_MultipleTransmit_ok() {
 }
 
 func (s *UnitTestSuite) Test_DataRoutingWorkflow_MultipleTransmit_fail() {
-	// The second call to GetRouteActivity will return a goodRoute
-	getRouteOutSeq := []GetRouteOut {
+	// The second call to GetRouteActivity will return a "no route found" result.
+	getRouteOutSeq := []GetRouteOut{
 		{false, "badRoute"},
 		{true, ""},
 	}
@@ -125,7 +126,6 @@ func (s *UnitTestSuite) Test_DataRoutingWorkflow_MultipleTransmit_fail() {
 	s.Equal("", dataRoutingOut.Packet.CurrentRouteProvider)
 	s.Equal(StatusNoRoute, dataRoutingOut.Packet.Status)
 }
-
 
 func TestUnitTestSuite(t *testing.T) {
 	suite.Run(t, new(UnitTestSuite))
