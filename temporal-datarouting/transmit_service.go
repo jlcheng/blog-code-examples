@@ -33,10 +33,11 @@ func (r *TransmitService) ServeHTTP(w http.ResponseWriter, request *http.Request
 
 	// Do nothing if we failed the callback roll
 	if rand.Intn(100) >= TransmitServiceCallbackChance {
-		log.Println("ServeHTTP: no callback")
+		log.Println("ServeHTTP: failed callback roll")
 		w.WriteHeader(http.StatusOK)
 		return
 	}
+	log.Println("ServeHTTP: succeeded on callback roll")
 
 	// Roll a random delay
 	delay := time.Now().Add(time.Duration(rand.Intn(TransmitServiceTimeoutSecs)) * time.Second)

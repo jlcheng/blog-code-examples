@@ -13,7 +13,7 @@ import (
 	"syscall"
 )
 
-var dataRoutingTaskQueue = "DataRoutingTaskQueue"
+var dataRoutingTaskQueue = "DataRoutingTaskQueueV1"
 
 var _ http.Handler = (*TransmitService)(nil)
 
@@ -73,7 +73,7 @@ func doSubmit() {
 		ID: fmt.Sprintf("DataRoutingWorkflow-%s", dataRoutingIn.Packet.ID),
 
 		// Include a version number in the TaskQueue is one way to run multiple worker code concurrently
-		TaskQueue: "DataRoutingTaskQueueV1",
+		TaskQueue: dataRoutingTaskQueue,
 	}
 	we, err := c.ExecuteWorkflow(context.Background(), workflowOptions, DataRoutingWorkflow, dataRoutingIn)
 	if err != nil {
