@@ -89,8 +89,8 @@ github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9de
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 go.temporal.io/api v1.4.0 h1:Ga1Ih8YE5ULs+UGt7u6Ppcf5SUMLyh4BATAs6SyPO0w=
 go.temporal.io/api v1.4.0/go.mod h1:H0yXehwGE9Sn9zVruyy9aumq17SMsK1WmIy4GX3MIKw=
-go.temporal.io/sdk v1.4.1 h1:1zRRMAJNxy5lh1+QnDzuLXXbj0jJKagvyVzA2bkkqD4=
-go.temporal.io/sdk v1.4.1/go.mod h1:hZ3Jd/Aoom1ao+fRyFf6y3MfHwXdPlhJiykX/gGmBeA=
+go.temporal.io/sdk v1.5.0 h1:iOeovA+0XALkpZtIO0oRnhgiOi+r8QcF1TKehGIYp+k=
+go.temporal.io/sdk v1.5.0/go.mod h1:XnS/hT3kMdBc2PWO/sFnCzICzUaUsYr9tWJp9hVoJJE=
 go.uber.org/atomic v1.6.0/go.mod h1:sABNBOSYdrvTF6hTgEIbc7YasKWGhgEQZyfxyTvoXHQ=
 go.uber.org/atomic v1.7.0 h1:ADUqmZGgLDDfbSL9ZmPxKTybcoEYHgpYfELNoN+7hsw=
 go.uber.org/atomic v1.7.0/go.mod h1:fEN4uk6kAWBTFdckzkM89CLk9XfWZrxpCo0nPH17wJc=
