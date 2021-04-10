@@ -82,7 +82,7 @@ func DataRoutingWorkflow(ctx workflow.Context, in DataRoutingIn) (DataRoutingOut
 		activityCtx = workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
 			ScheduleToStartTimeout: time.Minute,             // Timeout between activity being scheduled to starting execution
 			StartToCloseTimeout:    TransmitActivityTimeout, // Timeout of the execution
-			RetryPolicy: &temporal.RetryPolicy{	MaximumAttempts: 1 },
+			RetryPolicy:            &temporal.RetryPolicy{BackoffCoefficient: 1.0, MaximumAttempts: 1},
 		})
 		var transmitOut TransmitOut
 		if err := workflow.ExecuteActivity(activityCtx, TransmitActivity, TransmitIn{Packet: packet}).Get(ctx, &transmitOut); err != nil {
